@@ -51,6 +51,10 @@ export async function callGemma(
   return _callGemma(apiKey, config, prompt, config.systemPrompt)
 }
 
+function mergeSystemPrompt(systemPrompt: string, prompt: string): string {
+  return `System instruction:\n${systemPrompt}\n\nUser prompt:\n${prompt}`
+}
+
 async function _callGemma(
   apiKey: string,
   config: GemmaCallConfig,
@@ -96,7 +100,7 @@ async function _callGemma(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     if (systemPrompt && msg.includes('Developer instruction is not enabled')) {
-      return _callGemma(apiKey, config, prompt, undefined)
+      return _callGemma(apiKey, config, mergeSystemPrompt(systemPrompt, prompt), undefined)
     }
     throw new GoogleAIError('UPSTREAM_ERROR', msg)
   }

@@ -46,7 +46,11 @@ describe('callGemma', () => {
 
     expect(result.text).toBe('Hello from Gemma')
     expect(mockGetGenerativeModel).toHaveBeenCalledTimes(2)
-    // Second call must not include systemInstruction
+    // Second call falls back to a merged prompt so the instruction is still preserved.
+    expect(mockGenerateContent).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('System instruction:\nBe helpful\n\nUser prompt:\nHello')
+    )
     expect(mockGetGenerativeModel).toHaveBeenNthCalledWith(
       2,
       expect.not.objectContaining({ systemInstruction: expect.anything() })
