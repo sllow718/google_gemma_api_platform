@@ -48,6 +48,15 @@ export async function callGemma(
   config: GemmaCallConfig,
   prompt: string
 ): Promise<GemmaResponse> {
+  return _callGemma(apiKey, config, prompt, config.systemPrompt)
+}
+
+async function _callGemma(
+  apiKey: string,
+  config: GemmaCallConfig,
+  prompt: string,
+  systemPrompt: string | undefined
+): Promise<GemmaResponse> {
   const genAI = new GoogleGenerativeAI(apiKey)
 
   const generationConfig: GenerationConfig = {}
@@ -64,7 +73,7 @@ export async function callGemma(
       category: s.category as HarmCategory,
       threshold: s.threshold as HarmBlockThreshold,
     })),
-    systemInstruction: config.systemPrompt || undefined,
+    ...(systemPrompt ? { systemInstruction: systemPrompt } : {}),
   })
 
   const start = Date.now()
@@ -85,7 +94,11 @@ export async function callGemma(
       latencyMs,
     }
   } catch (err) {
-    throw new GoogleAIError('UPSTREAM_ERROR', err instanceof Error ? err.message : String(err))
+    const msg = err instanceof Error ? err.message : String(err)
+    if (systemPrompt && msg.includes('Developer instruction is not enabled')) {
+      return _callGemma(apiKey, config, prompt, undefined)
+    }
+    throw new GoogleAIError('UPSTREAM_ERROR', msg)
   }
 }
 

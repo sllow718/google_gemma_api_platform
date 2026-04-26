@@ -34,5 +34,6 @@ export async function GET(request: Request): Promise<Response> {
     dailyRemaining: user.tier === 'shared' ? Math.max(0, dailyLimit - user.dailyCallCount) : null,
     hasApiKey: !!apiKey,
     keyHint: apiKey?.keyHint ?? null,
+    platformApiKey: user.platformApiKey ?? null,
   })
 }

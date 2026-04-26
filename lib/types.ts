@@ -16,6 +16,7 @@ export interface User {
   dailyCallResetAt: string | null
   refreshToken: string | null
   refreshTokenExpiresAt: string | null
+  platformApiKey: string | null
 }
 
 export interface UserApiKey {
@@ -78,4 +79,5 @@ export interface UserProfile {
   dailyRemaining: number
   hasApiKey: boolean
   keyHint: string | null
+  platformApiKey: string | null
 }

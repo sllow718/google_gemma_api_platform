@@ -111,6 +111,32 @@ export async function updateTier(id: string, tier: Tier): Promise<void> {
   await sheetsRequest('updateTier', { id, tier })
 }
 
+export async function updateUserName(id: string, name: string): Promise<void> {
+  await sheetsRequest('updateUserName', { id, name })
+}
+
+export async function setPlatformApiKey(id: string, key: string): Promise<void> {
+  await sheetsRequest('setPlatformApiKey', { id, key })
+}
+
+export async function clearPlatformApiKey(id: string): Promise<void> {
+  await sheetsRequest('clearPlatformApiKey', { id })
+}
+
+export async function getUserByPlatformApiKey(key: string): Promise<User | null> {
+  try {
+    const res = await sheetsRequest<{ user: User }>('getUserByPlatformApiKey', { key })
+    return res.user
+  } catch (err) {
+    if (err instanceof SheetsError && err.code === 'SHEETS_ERROR') return null
+    throw err
+  }
+}
+
+export async function updatePassword(id: string, passwordHash: string): Promise<void> {
+  await sheetsRequest('updatePassword', { id, passwordHash })
+}
+
 export async function incrementCallCounts(id: string, currentDate: string): Promise<void> {
   await sheetsRequest('incrementCallCounts', { id, currentDate })
 }

@@ -23,7 +23,8 @@ var USERS_COL = {
   dailyCallCount: 9,
   dailyCallResetAt: 10,
   refreshToken: 11,
-  refreshTokenExpiresAt: 12
+  refreshTokenExpiresAt: 12,
+  platformApiKey: 13   // Column N — add this header to the Users sheet
 }
 
 var USERKEYS_COL = {
@@ -88,16 +89,21 @@ function doPost(e) {
     // Route to handler
     switch (action) {
       // Users
-      case 'createUser':           return createUser(body)
-      case 'getUserByEmail':       return getUserByEmail(body)
-      case 'getUserById':          return getUserById(body)
-      case 'updateLastLogin':      return updateLastLogin(body)
-      case 'setRefreshToken':      return setRefreshToken(body)
-      case 'getRefreshToken':      return getRefreshToken(body)
-      case 'clearRefreshToken':    return clearRefreshToken(body)
-      case 'updateTier':           return updateTier(body)
-      case 'incrementCallCounts':  return incrementCallCounts(body)
-      case 'getUserQuota':         return getUserQuota(body)
+      case 'createUser':              return createUser(body)
+      case 'getUserByEmail':          return getUserByEmail(body)
+      case 'getUserById':             return getUserById(body)
+      case 'updateLastLogin':         return updateLastLogin(body)
+      case 'setRefreshToken':         return setRefreshToken(body)
+      case 'getRefreshToken':         return getRefreshToken(body)
+      case 'clearRefreshToken':       return clearRefreshToken(body)
+      case 'updateTier':              return updateTier(body)
+      case 'incrementCallCounts':     return incrementCallCounts(body)
+      case 'getUserQuota':            return getUserQuota(body)
+      case 'updateUserName':          return updateUserName(body)
+      case 'updatePassword':          return updatePassword(body)
+      case 'setPlatformApiKey':       return setPlatformApiKey(body)
+      case 'clearPlatformApiKey':     return clearPlatformApiKey(body)
+      case 'getUserByPlatformApiKey': return getUserByPlatformApiKey(body)
       // UserApiKeys
       case 'setApiKey':            return setApiKey(body)
       case 'getApiKey':            return getApiKey(body)
@@ -147,7 +153,8 @@ function createUser(body) {
       0,                 // dailyCallCount
       body.createdAt,    // dailyCallResetAt
       '',                // refreshToken
-      ''                 // refreshTokenExpiresAt
+      '',                // refreshTokenExpiresAt
+      ''                 // platformApiKey
     ])
     return respond({ success: true, id: body.id })
   } finally {
@@ -244,7 +251,7 @@ function incrementCallCounts(body) {
     var info = findRowInfo(sheet, USERS_COL.id, body.id)
     if (!info) return respond({ success: false })
 
-    var row = info.sheet.getRange(info.rowNum, 1, 1, 13).getValues()[0]
+    var row = info.sheet.getRange(info.rowNum, 1, 1, 14).getValues()[0]
     var currentUTCDate = body.currentDate  // expects 'YYYY-MM-DD'
     var resetAt = String(row[USERS_COL.dailyCallResetAt]).substring(0, 10)
 
@@ -280,6 +287,65 @@ function getUserQuota(body) {
     totalCallCount: Number(row[USERS_COL.totalCallCount]) || 0,
     tier: row[USERS_COL.tier]
   })
+}
+
+function updateUserName(body) {
+  var lock = LockService.getScriptLock()
+  lock.waitLock(10000)
+  try {
+    var info = findRowInfo(getSheet('Users'), USERS_COL.id, body.id)
+    if (!info) return respond({ success: false })
+    info.sheet.getRange(info.rowNum, USERS_COL.name + 1).setValue(body.name)
+    return respond({ success: true })
+  } finally {
+    lock.releaseLock()
+  }
+}
+
+function updatePassword(body) {
+  var lock = LockService.getScriptLock()
+  lock.waitLock(10000)
+  try {
+    var info = findRowInfo(getSheet('Users'), USERS_COL.id, body.id)
+    if (!info) return respond({ success: false })
+    info.sheet.getRange(info.rowNum, USERS_COL.passwordHash + 1).setValue(body.passwordHash)
+    return respond({ success: true })
+  } finally {
+    lock.releaseLock()
+  }
+}
+
+function setPlatformApiKey(body) {
+  var lock = LockService.getScriptLock()
+  lock.waitLock(10000)
+  try {
+    var info = findRowInfo(getSheet('Users'), USERS_COL.id, body.id)
+    if (!info) return respond({ success: false })
+    info.sheet.getRange(info.rowNum, USERS_COL.platformApiKey + 1).setValue(body.key)
+    return respond({ success: true })
+  } finally {
+    lock.releaseLock()
+  }
+}
+
+function clearPlatformApiKey(body) {
+  var lock = LockService.getScriptLock()
+  lock.waitLock(10000)
+  try {
+    var info = findRowInfo(getSheet('Users'), USERS_COL.id, body.id)
+    if (!info) return respond({ success: false })
+    info.sheet.getRange(info.rowNum, USERS_COL.platformApiKey + 1).setValue('')
+    return respond({ success: true })
+  } finally {
+    lock.releaseLock()
+  }
+}
+
+function getUserByPlatformApiKey(body) {
+  var sheet = getSheet('Users')
+  var row = findRowByValue(sheet, USERS_COL.platformApiKey, body.key)
+  if (!row) return respond({ success: false })
+  return respond({ success: true, user: rowToUser(row) })
 }
 
 // ===== USER API KEYS ACTIONS =====
@@ -546,7 +612,8 @@ function rowToUser(row) {
     dailyCallCount: Number(row[USERS_COL.dailyCallCount]) || 0,
     dailyCallResetAt: row[USERS_COL.dailyCallResetAt] || null,
     refreshToken: row[USERS_COL.refreshToken] || null,
-    refreshTokenExpiresAt: row[USERS_COL.refreshTokenExpiresAt] || null
+    refreshTokenExpiresAt: row[USERS_COL.refreshTokenExpiresAt] || null,
+    platformApiKey: row[USERS_COL.platformApiKey] || null
   }
 }
 

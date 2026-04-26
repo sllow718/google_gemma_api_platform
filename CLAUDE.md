@@ -14,16 +14,18 @@ This is a **Gemma API Management Platform** — a full-stack Next.js 16 / TypeSc
 | 4 | Auth API routes + tests (signup, login, refresh, logout, me) | done |
 | 5 | Saved API CRUD routes + tests + GET /api/gemma/models | done |
 | 6 | API execution + call history routes + tests | done |
+| 7 | User API key routes + quota logic + tests | done |
+| 8 | Zustand auth store + client auth flow + tests | done |
+| 9 | Frontend: public pages (`/`, `/login`, `/signup`) | done |
+| 10 | Frontend: dashboard + API management UI | done |
+| 11 | Frontend: history, settings, global components | done |
+| — | Public API endpoint + Quickstart UI (post-Phase-11 feature) | done |
 
-`npm test` → 39 passing, 0 failures.
+`npm test` → 91 passing, 0 failures.
 
 ### Next phase
 
-**Phase 7** — User API key routes + quota logic:
-- `POST /api/user/apikey` — validate via `listModels` → encrypt → store key → set tier
-- `DELETE /api/user/apikey` — remove stored key → restore shared tier
-- `tests/user.apikey.test.ts` — 5 cases (§14.5)
-- `tests/quota.test.ts` — 4 cases (§14.6)
+**Phase 12** — Sheets integration tests + full QA (`tests/sheets.integration.test.ts`, 10 cases §14.8); requires live staging sheet.
 
 ### Key architectural decisions
 
@@ -33,6 +35,21 @@ This is a **Gemma API Management Platform** — a full-stack Next.js 16 / TypeSc
 - **Dynamic params**: Next.js 16 `params` is a `Promise<{id}>` — always `await params` in route handlers
 - **listGemmaModels**: calls Google REST API directly (SDK has no listModels); 1-hour in-memory cache in `lib/googleAI.ts`
 - **Test pattern**: mock `next/headers` in every test file (lib/auth imports it at module level); use real `signAccessToken` to create auth tokens in tests
+- **Password strength**: `lib/passwordStrength.ts` — score-based (length ≥8 + uppercase + digit + special); weak/medium/strong
+- **Form validation**: client-side uses Zod `SignupSchema.safeParse`; errors mapped by `issue.path[0]` to field name
+- **Auth pages** (`/login`, `/signup`): `'use client'`; call API route → on success `authStore.login(token, user)` → `router.push('/dashboard')`
+- **ToastProvider**: wraps `{children}` in root layout; use `useToast()` hook in any client component
+- **Dashboard auth guard**: `(dashboard)/layout.tsx` checks for `refreshToken` cookie (server-side); client-side `AuthInitializer` does the full token validation
+- **Client data fetching**: dashboard pages use `useEffect` + `useAuthStore` `accessToken` as Bearer token; no server-side data fetching in pages
+- **ApiConfigForm**: `onSubmit(FormData)` callback pattern — page handles the fetch, form handles UI/validation only
+- **formatUtils**: `formatDate(iso)` → "Jan 15, 2026" (UTC); `truncate(text, max)` → appends "…"
+- **Settings URL**: `app/(dashboard)/settings/page.tsx` → `/settings` (route group doesn't add prefix); Navbar links to `/settings` not `/dashboard/settings`
+- **New sheets actions** (Phase 11): `updateUserName` and `updatePassword` — call new Apps Script actions that must be added to `Code.gs`
+- **ApiKeyManager**: calls `authStore.initialize()` after add/remove to refresh user tier in store
+- **Platform API Key**: format `gmp_` + 32 hex chars (UUID without dashes); stored in Users sheet (`platformApiKey` column); auth via `X-API-Key` header on `POST /api/v1/:id/call`
+- **Public endpoint**: `POST /api/v1/:id/call` — same quota/call logic as JWT route but authenticated with platform key; no session cookie needed
+- **Quickstart component**: collapsible section on API call page; shows endpoint URL + copy-able Node.js snippet; prompts to generate key in Settings if none exists
+- **New sheets actions needed in Code.gs**: `setPlatformApiKey`, `clearPlatformApiKey`, `getUserByPlatformApiKey`, `updateUserName`, `updatePassword`
 
 ### Manual setup (Phase 2) — COMPLETE
 
