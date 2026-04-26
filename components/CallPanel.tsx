@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useAuthStore } from '@/store/authStore'
-import { truncate } from '@/lib/formatUtils'
+import { formatDuration, truncate } from '@/lib/formatUtils'
 import type { CallLog } from '@/lib/types'
 
 interface CallResponse {
@@ -93,7 +93,7 @@ export function CallPanel({ apiId, recentCalls }: CallPanelProps) {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Enter your prompt…"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
           maxLength={32000}
         />
         <p className="text-right text-xs text-gray-400">{prompt.length} / 32000</p>
@@ -117,7 +117,7 @@ export function CallPanel({ apiId, recentCalls }: CallPanelProps) {
                 value={temperature}
                 onChange={(e) => setTemperature(e.target.value)}
                 placeholder="saved value"
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -127,7 +127,7 @@ export function CallPanel({ apiId, recentCalls }: CallPanelProps) {
                 value={maxTokens}
                 onChange={(e) => setMaxTokens(e.target.value)}
                 placeholder="saved value"
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -160,7 +160,7 @@ export function CallPanel({ apiId, recentCalls }: CallPanelProps) {
             <span>Prompt tokens: <strong>{response.usage.promptTokenCount}</strong></span>
             <span>Response tokens: <strong>{response.usage.responseTokenCount}</strong></span>
             <span>Total tokens: <strong>{response.usage.totalTokenCount}</strong></span>
-            <span>Latency: <strong>{response.latencyMs}ms</strong></span>
+            <span>Duration: <strong>{formatDuration(response.latencyMs)}</strong></span>
             <span>Finish: <strong>{response.finishReason}</strong></span>
           </div>
         </div>

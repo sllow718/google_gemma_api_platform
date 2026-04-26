@@ -18,6 +18,7 @@ type Ctx = { params: Promise<{ id: string }> }
 
 const DEFAULT_SHARED_DAILY_LIMIT = 50
 const SHARED_MAX_OUTPUT_TOKENS = 4096
+const API_TIMING_LOGS = process.env.API_TIMING_LOGS === '1'
 
 function jsonError(
   status: number,
@@ -76,15 +77,23 @@ function buildCallConfig(
   }
 }
 
+function logTiming(routeId: string, step: string, startedAt: number): void {
+  if (!API_TIMING_LOGS) return
+  console.info(`[api-call:${routeId}] ${step} (${Date.now() - startedAt}ms)`)
+}
+
 export async function POST(request: Request, { params }: Ctx): Promise<Response> {
   try {
+    const routeStartedAt = Date.now()
     const payload = getAuthPayload(request)
     if (!payload) return jsonError(401, 'UNAUTHORIZED')
+    logTiming(payload.sub, 'authenticated', routeStartedAt)
 
     const { id } = await params
     const api = await getSavedApiById(id)
     if (!api) return jsonError(404, 'NOT_FOUND')
     if (api.userId !== payload.sub) return jsonError(403, 'FORBIDDEN')
+    logTiming(payload.sub, 'loaded saved api', routeStartedAt)
 
     let body: unknown
     try {
@@ -97,6 +106,7 @@ export async function POST(request: Request, { params }: Ctx): Promise<Response>
     if (!parsed.success) {
       return jsonError(400, 'VALIDATION_ERROR', undefined, parsed.error.flatten())
     }
+    logTiming(payload.sub, 'validated body', routeStartedAt)
 
     const user = await getUserById(payload.sub)
     if (!user) return jsonError(401, 'UNAUTHORIZED')
@@ -126,9 +136,12 @@ export async function POST(request: Request, { params }: Ctx): Promise<Response>
 
       apiKey = decrypt(storedKey.encryptedKey, storedKey.iv)
     }
+    logTiming(user.id, user.tier === 'shared' ? 'shared key ready' : 'loaded user api key', routeStartedAt)
 
     const config = buildCallConfig(api, user.tier, parsed.data.overrides ?? {})
+    logTiming(user.id, 'built config', routeStartedAt)
     const result = await callGemma(apiKey, config, parsed.data.prompt)
+    logTiming(user.id, `gemma completed (${result.latencyMs}ms upstream)`, routeStartedAt)
     const callLogId = uuidv4()
 
     const callLog: CallLog = {
@@ -148,7 +161,9 @@ export async function POST(request: Request, { params }: Ctx): Promise<Response>
     }
 
     await createCallLog(callLog)
+    logTiming(user.id, 'created call log', routeStartedAt)
     await Promise.all([incrementApiCallCount(api.id), incrementCallCounts(user.id, currentDate)])
+    logTiming(user.id, 'updated counters', routeStartedAt)
 
     return NextResponse.json({
       text: result.text,

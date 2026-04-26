@@ -84,7 +84,7 @@ export function ApiKeyManager() {
             value={keyInput}
             onChange={(e) => { setKeyInput(e.target.value); setSaveError(null) }}
             placeholder="AIzaSy…"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Button onClick={handleSave} loading={saving} disabled={!keyInput.trim()}>
             Save Key

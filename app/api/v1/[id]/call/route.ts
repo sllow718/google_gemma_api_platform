@@ -17,6 +17,7 @@ type Ctx = { params: Promise<{ id: string }> }
 
 const DEFAULT_SHARED_DAILY_LIMIT = 50
 const SHARED_MAX_OUTPUT_TOKENS = 4096
+const API_TIMING_LOGS = process.env.API_TIMING_LOGS === '1'
 
 function jsonError(status: number, code: string, message?: string): Response {
   return NextResponse.json({ error: { code, ...(message ? { message } : {}) } }, { status })
@@ -53,19 +54,27 @@ function buildConfig(api: SavedApi, tier: Tier, overrides: { temperature?: numbe
   }
 }
 
+function logTiming(routeId: string, step: string, startedAt: number): void {
+  if (!API_TIMING_LOGS) return
+  console.info(`[api-call:${routeId}] ${step} (${Date.now() - startedAt}ms)`)
+}
+
 export async function POST(request: Request, { params }: Ctx): Promise<Response> {
   try {
+    const routeStartedAt = Date.now()
     // Authenticate via X-API-Key header
     const platformKey = request.headers.get('X-API-Key')
     if (!platformKey) return jsonError(401, 'UNAUTHORIZED', 'X-API-Key header is required')
 
     const user = await getUserByPlatformApiKey(platformKey)
     if (!user) return jsonError(401, 'UNAUTHORIZED', 'Invalid API key')
+    logTiming(user.id, 'authenticated', routeStartedAt)
 
     const { id } = await params
     const api = await getSavedApiById(id)
     if (!api) return jsonError(404, 'NOT_FOUND', 'Configuration not found')
     if (api.userId !== user.id) return jsonError(403, 'FORBIDDEN', 'This configuration belongs to another user')
+    logTiming(user.id, 'loaded saved api', routeStartedAt)
 
     let body: unknown
     try { body = await request.json() } catch {
@@ -74,6 +83,7 @@ export async function POST(request: Request, { params }: Ctx): Promise<Response>
 
     const parsed = CallApiSchema.safeParse(body)
     if (!parsed.success) return jsonError(400, 'VALIDATION_ERROR', 'Invalid request body')
+    logTiming(user.id, 'validated body', routeStartedAt)
 
     const sharedDailyLimit = Number.parseInt(process.env.SHARED_TIER_DAILY_LIMIT ?? String(DEFAULT_SHARED_DAILY_LIMIT), 10)
     const today = utcDateString(new Date())
@@ -91,9 +101,12 @@ export async function POST(request: Request, { params }: Ctx): Promise<Response>
       if (!stored) return jsonError(404, 'NOT_FOUND', 'No Google API key stored for this user')
       apiKey = decrypt(stored.encryptedKey, stored.iv)
     }
+    logTiming(user.id, user.tier === 'shared' ? 'shared key ready' : 'loaded user api key', routeStartedAt)
 
     const config = buildConfig(api, user.tier, parsed.data.overrides)
+    logTiming(user.id, 'built config', routeStartedAt)
     const result = await callGemma(apiKey, config, parsed.data.prompt)
+    logTiming(user.id, `gemma completed (${result.latencyMs}ms upstream)`, routeStartedAt)
     const callLogId = uuidv4()
 
     const log: CallLog = {
@@ -113,7 +126,9 @@ export async function POST(request: Request, { params }: Ctx): Promise<Response>
     }
 
     await createCallLog(log)
+    logTiming(user.id, 'created call log', routeStartedAt)
     await Promise.all([incrementApiCallCount(api.id), incrementCallCounts(user.id, today)])
+    logTiming(user.id, 'updated counters', routeStartedAt)
 
     return NextResponse.json({
       text: result.text,

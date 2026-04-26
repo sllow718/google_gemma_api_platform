@@ -109,7 +109,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
           rows={2}
           value={form.description ?? ''}
           onChange={(e) => set('description', e.target.value || null)}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -120,7 +120,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
           id="model"
           value={form.model}
           onChange={(e) => set('model', e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {models.length === 0 && <option value="">Loading models…</option>}
           {models.map((m) => <option key={m.id} value={m.id}>{m.displayName}</option>)}
@@ -138,7 +138,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
           rows={3}
           value={form.systemPrompt ?? ''}
           onChange={(e) => set('systemPrompt', e.target.value || null)}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -157,7 +157,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
             value={form.temperature ?? ''}
             onChange={(e) => set('temperature', e.target.value ? parseFloat(e.target.value) : null)}
             placeholder="default"
-            className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -177,7 +177,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
             value={form.topP ?? ''}
             onChange={(e) => set('topP', e.target.value ? parseFloat(e.target.value) : null)}
             placeholder="default"
-            className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -210,7 +210,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
             onChange={(e) => setStopInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addStop() } }}
             placeholder="Add sequence and press Enter"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Button type="button" variant="secondary" size="sm" onClick={addStop}>Add</Button>
         </div>
@@ -235,7 +235,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
             <select
               value={getSafety(cat)}
               onChange={(e) => setSafety(cat, e.target.value)}
-              className="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Model default</option>
               {HARM_THRESHOLDS.map((t) => (

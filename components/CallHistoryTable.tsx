@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { CallLog } from '@/lib/types'
-import { formatDate, truncate } from '@/lib/formatUtils'
+import { formatDate, formatDuration, truncate } from '@/lib/formatUtils'
 
 interface CallHistoryTableProps {
   calls: CallLog[]
@@ -22,7 +22,7 @@ export function CallHistoryTable({ calls, total, page, limit, onPageChange }: Ca
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-xs text-gray-500">
             <tr>
-              {['Time', 'Prompt', 'Response', 'Tokens', 'Latency', 'Tier', 'Finish'].map((h) => (
+              {['Time', 'Prompt', 'Response', 'Tokens', 'Duration', 'Tier', 'Finish'].map((h) => (
                 <th key={h} className="px-4 py-3 text-left font-medium">{h}</th>
               ))}
             </tr>
@@ -38,7 +38,7 @@ export function CallHistoryTable({ calls, total, page, limit, onPageChange }: Ca
                 <td className="max-w-[180px] px-4 py-3 text-gray-800">{truncate(c.prompt, 60)}</td>
                 <td className="max-w-[180px] px-4 py-3 text-gray-500">{truncate(c.responseText, 60)}</td>
                 <td className="px-4 py-3 text-gray-600">{c.totalTokenCount}</td>
-                <td className="px-4 py-3 text-gray-600">{c.latencyMs}ms</td>
+                <td className="px-4 py-3 text-gray-600">{formatDuration(c.latencyMs)}</td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${c.tier === 'byok' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
                     {c.tier}
@@ -91,7 +91,7 @@ export function CallHistoryTable({ calls, total, page, limit, onPageChange }: Ca
               <div className="flex flex-wrap gap-4 text-xs text-gray-500">
                 <span>{formatDate(selected.createdAt)}</span>
                 <span>{selected.totalTokenCount} tokens</span>
-                <span>{selected.latencyMs}ms</span>
+                <span>{formatDuration(selected.latencyMs)}</span>
                 <span className="uppercase">{selected.tier}</span>
                 <span>{selected.finishReason}</span>
               </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuthStore } from '@/store/authStore'
+import { buildPostmanCollection } from '@/lib/postman'
 
 interface QuickstartProps {
   configId: string
@@ -10,43 +11,24 @@ interface QuickstartProps {
 
 export function Quickstart({ configId }: QuickstartProps) {
   const user = useAuthStore((s) => s.user)
-  const [copied, setCopied] = useState(false)
   const [open, setOpen] = useState(false)
+  const [downloaded, setDownloaded] = useState(false)
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  const endpoint = `${baseUrl}/api/v1/${configId}/call`
   const apiKey = user?.platformApiKey ?? 'YOUR_PLATFORM_API_KEY'
   const hasKey = !!user?.platformApiKey
 
-  const snippet = `const response = await fetch('${endpoint}', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-API-Key': '${apiKey}'
-  },
-  body: JSON.stringify({
-    prompt: 'Your prompt here',
-    // Optional overrides:
-    // overrides: { temperature: 0.7, maxOutputTokens: 1024 }
-  })
-});
-
-const data = await response.json();
-console.log(data.text);
-// Response shape:
-// {
-//   text: string,
-//   model: string,
-//   finishReason: string,
-//   usage: { promptTokenCount, responseTokenCount, totalTokenCount },
-//   latencyMs: number,
-//   callLogId: string
-// }`
-
-  async function handleCopy() {
-    await navigator.clipboard.writeText(snippet)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  async function handleDownload() {
+    const collection = buildPostmanCollection(configId, baseUrl, apiKey)
+    const blob = new Blob([JSON.stringify(collection, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `gemma-api-platform-${configId}.postman_collection.json`
+    link.click()
+    URL.revokeObjectURL(url)
+    setDownloaded(true)
+    setTimeout(() => setDownloaded(false), 2000)
   }
 
   return (
@@ -55,7 +37,7 @@ console.log(data.text);
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between px-6 py-4 text-left"
       >
-        <span className="font-semibold text-gray-900">Quickstart — Node.js</span>
+        <span className="font-semibold text-gray-900">Quickstart — Postman</span>
         <span className="text-gray-400">{open ? '▾' : '▸'}</span>
       </button>
 
@@ -73,25 +55,29 @@ console.log(data.text);
           <div className="flex flex-col gap-1">
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Endpoint</p>
             <code className="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-800 break-all">
-              POST {endpoint}
+              POST {baseUrl}/api/v1/{configId}/call
             </code>
           </div>
 
-          <div className="relative">
-            <p className="mb-1 text-xs font-medium text-gray-500 uppercase tracking-wide">Node.js snippet</p>
-            <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-xs text-gray-100 leading-relaxed">
-              <code>{snippet}</code>
-            </pre>
-            <button
-              onClick={handleCopy}
-              className="absolute right-3 top-8 rounded bg-gray-700 px-2 py-1 text-xs text-gray-200 hover:bg-gray-600"
-            >
-              {copied ? '✓ Copied' : 'Copy'}
-            </button>
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              Postman collection
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleDownload}
+                className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black"
+              >
+                {downloaded ? 'Downloaded' : 'Download .json'}
+              </button>
+              <span className="text-xs text-gray-500">
+                Import the downloaded file directly into Postman.
+              </span>
+            </div>
           </div>
 
           <p className="text-xs text-gray-400">
-            Calls through this endpoint use your saved configuration and count against your quota.
+            The collection includes the endpoint, headers, and a sample body with Postman variables.
           </p>
         </div>
       )}

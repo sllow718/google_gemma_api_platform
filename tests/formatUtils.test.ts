@@ -1,4 +1,4 @@
-import { formatDate, truncate } from '@/lib/formatUtils'
+import { formatDate, formatDuration, truncate } from '@/lib/formatUtils'
 
 describe('formatDate', () => {
   it('formats a known ISO date as readable month-day-year', () => {
@@ -30,5 +30,20 @@ describe('truncate', () => {
 
   it('truncates exactly at the boundary', () => {
     expect(truncate('abcdef', 3)).toBe('abc…')
+  })
+})
+
+describe('formatDuration', () => {
+  it('formats sub-second durations in milliseconds', () => {
+    expect(formatDuration(123)).toBe('123ms')
+  })
+
+  it('formats short durations in seconds', () => {
+    expect(formatDuration(1234)).toBe('1.2s')
+    expect(formatDuration(9950)).toBe('10s')
+  })
+
+  it('formats long durations in minutes and seconds', () => {
+    expect(formatDuration(125000)).toBe('2m 5s')
   })
 })
