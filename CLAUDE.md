@@ -13,16 +13,17 @@ This is a **Gemma API Management Platform** — a full-stack Next.js 16 / TypeSc
 | 3 | Core library layer (encrypt, auth, googleAI, rateLimit, validate) | done |
 | 4 | Auth API routes + tests (signup, login, refresh, logout, me) | done |
 | 5 | Saved API CRUD routes + tests + GET /api/gemma/models | done |
+| 6 | API execution + call history routes + tests | done |
 
-`npm test` → 28 passing, 0 failures.
+`npm test` → 39 passing, 0 failures.
 
 ### Next phase
 
-**Phase 6** — API execution + call history:
-- `POST /api/apis/[id]/call` — shared/BYOK quota check → callGemma → createCallLog → increment counters → return response
-- `GET /api/apis/[id]/calls` — paginated call history (ownership check, limit capped at 50)
-- `tests/apis.call.test.ts` — 10 cases (§14.3)
-- `tests/apis.history.test.ts` — 4 cases (§14.4)
+**Phase 7** — User API key routes + quota logic:
+- `POST /api/user/apikey` — validate via `listModels` → encrypt → store key → set tier
+- `DELETE /api/user/apikey` — remove stored key → restore shared tier
+- `tests/user.apikey.test.ts` — 5 cases (§14.5)
+- `tests/quota.test.ts` — 4 cases (§14.6)
 
 ### Key architectural decisions
 
