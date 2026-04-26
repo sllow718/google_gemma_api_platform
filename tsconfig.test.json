@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "moduleResolution": "node"
+  },
+  "include": ["tests/**/*.ts", "lib/**/*.ts", "app/api/**/*.ts", "store/**/*.ts"]
+}

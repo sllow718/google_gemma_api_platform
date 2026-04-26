@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+import { listGemmaModels } from '@/lib/googleAI'
 
-export async function GET() {
-  return NextResponse.json({ error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 5.' } }, { status: 501 })
+export async function GET(): Promise<Response> {
+  const models = await listGemmaModels(process.env.GOOGLE_API_KEY!)
+  return NextResponse.json({ models })
 }

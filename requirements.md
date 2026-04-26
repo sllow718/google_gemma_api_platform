@@ -1,6 +1,6 @@
 # Development Plan: Gemma API Management Platform
 
-**Version:** 1.0  
+**Version:** 1.2  
 **Last Updated:** 2026-04-26  
 **Source:** Requirements.MD v2.0  
 
@@ -10,11 +10,11 @@
 
 | Phase | Deliverable | Depends On | Status |
 |---|---|---|---|
-| 1 | Project scaffold & tooling | — | pending |
-| 2 | Google Apps Script + Sheets data layer | 1 | pending |
-| 3 | Core library layer | 2 | pending |
-| 4 | Auth API routes + tests | 3 | pending |
-| 5 | Saved API CRUD routes + tests | 4 | pending |
+| 1 | Project scaffold & tooling | — | **done** |
+| 2 | Google Apps Script + Sheets data layer | 1 | **done** |
+| 3 | Core library layer | 2 | **done** |
+| 4 | Auth API routes + tests | 3 | **done** |
+| 5 | Saved API CRUD routes + tests | 4 | **done** |
 | 6 | API execution + call history routes + tests | 5 | pending |
 | 7 | User API key routes + quota logic + tests | 6 | pending |
 | 8 | Zustand auth store + client auth flow | 4 | pending |
@@ -126,16 +126,18 @@ apps-script/
 
 ### Tasks
 
-- [ ] Implement all 22 actions in `apps-script/Code.gs`:
-  - **Users:** `createUser`, `getUserByEmail`, `getUserById`, `updateLastLogin`, `setRefreshToken`, `getRefreshToken`, `clearRefreshToken`, `updateTier`, `incrementCallCounts`, `getUserQuota`
-  - **UserApiKeys:** `setApiKey`, `getApiKey`, `deleteApiKey`
-  - **SavedApis:** `createSavedApi`, `getSavedApisByUser`, `getSavedApiById`, `updateSavedApi`, `deleteSavedApi`, `incrementApiCallCount`
-  - **CallLogs:** `createCallLog`, `getCallLogsByApi`, `deleteCallLogsByApi`
-- [ ] Create Google Sheets workbook with 4 sheets (`Users`, `UserApiKeys`, `SavedApis`, `CallLogs`)
-- [ ] Add column headers to each sheet matching the schemas in Requirements §5
-- [ ] Deploy Apps Script as a Web App (Execute as: Me, Who has access: Anyone)
-- [ ] Copy the deployed URL to `SHEETS_WEBHOOK_URL` in `.env.local`
-- [ ] Smoke-test every action via `curl`
+- [x] Implement all 22 actions in `apps-script/Code.gs`
+  - [x] **Users (10):** `createUser`, `getUserByEmail`, `getUserById`, `updateLastLogin`, `setRefreshToken`, `getRefreshToken`, `clearRefreshToken`, `updateTier`, `incrementCallCounts`, `getUserQuota`
+  - [x] **UserApiKeys (3):** `setApiKey`, `getApiKey`, `deleteApiKey`
+  - [x] **SavedApis (6):** `createSavedApi`, `getSavedApisByUser`, `getSavedApiById`, `updateSavedApi`, `deleteSavedApi`, `incrementApiCallCount`
+  - [x] **CallLogs (3):** `createCallLog`, `getCallLogsByApi`, `deleteCallLogsByApi`
+- [x] `lib/types.ts` — TypeScript interfaces for all 4 data models
+- [x] `lib/sheets.ts` — fully typed HTTP client with wrappers for all 22 actions
+- [ ] **MANUAL:** Create Google Sheets workbook with 4 sheets (`Users`, `UserApiKeys`, `SavedApis`, `CallLogs`) and add column headers matching Requirements §5
+- [ ] **MANUAL:** In Apps Script editor: set Script Properties `SPREADSHEET_ID` and `SHEETS_SECRET`; deploy as Web App (Execute as Me / Anyone); copy URL to `.env.local` as `SHEETS_WEBHOOK_URL`
+- [ ] **MANUAL:** Smoke-test every action via `curl` or the integration tests in Phase 12
+
+> **Note:** Apps Script Web Apps cannot read HTTP request headers. The `SHEETS_SECRET` is passed as `body.secret` in the POST body (handled transparently by `lib/sheets.ts`). The `X-Sheets-Secret` header mentioned in the requirements is effectively replaced by this body field.
 
 ### Security
 

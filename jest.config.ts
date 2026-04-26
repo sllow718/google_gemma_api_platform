@@ -14,7 +14,7 @@ const config: Config = {
   setupFiles: ['<rootDir>/tests/setup.ts'],
   collectCoverageFrom: ['lib/**/*.ts', 'app/api/**/*.ts'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { tsconfig: { strict: true } }],
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: './tsconfig.test.json' }],
   },
 }
 

@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server'
+import { getRefreshCookie, clearRefreshCookie } from '@/lib/auth'
+import { clearRefreshToken } from '@/lib/sheets'
 
-export async function POST() {
-  return NextResponse.json({ error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 4.' } }, { status: 501 })
+export async function POST(): Promise<Response> {
+  const cookie = await getRefreshCookie()
+  if (cookie) {
+    await clearRefreshToken(cookie.userId).catch(() => undefined)
+  }
+  await clearRefreshCookie()
+  return NextResponse.json({ ok: true })
 }
