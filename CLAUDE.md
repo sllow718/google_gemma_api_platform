@@ -33,6 +33,6 @@ This is a **Gemma API Management Platform** — a full-stack Next.js 16 / TypeSc
 - **listGemmaModels**: calls Google REST API directly (SDK has no listModels); 1-hour in-memory cache in `lib/googleAI.ts`
 - **Test pattern**: mock `next/headers` in every test file (lib/auth imports it at module level); use real `signAccessToken` to create auth tokens in tests
 
-### Manual setup still required (Phase 2)
+### Manual setup (Phase 2) — COMPLETE
 
-Create Google Sheets workbook with 4 tabs (`Users`, `UserApiKeys`, `SavedApis`, `CallLogs`) + column headers matching `Requirements.MD §5`. In Apps Script editor: set Script Properties `SPREADSHEET_ID` and `SHEETS_SECRET`, deploy as Web App (Execute as Me / Anyone), copy URL to `.env.local` as `SHEETS_WEBHOOK_URL`.
+Google Sheets workbook created with 4 tabs, Apps Script deployed as Web App, `SHEETS_WEBHOOK_URL` and `SHEETS_SECRET` set in `.env.local`. Confirmed working via Postman.

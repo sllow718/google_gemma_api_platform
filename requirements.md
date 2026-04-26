@@ -133,9 +133,9 @@ apps-script/
   - [x] **CallLogs (3):** `createCallLog`, `getCallLogsByApi`, `deleteCallLogsByApi`
 - [x] `lib/types.ts` — TypeScript interfaces for all 4 data models
 - [x] `lib/sheets.ts` — fully typed HTTP client with wrappers for all 22 actions
-- [ ] **MANUAL:** Create Google Sheets workbook with 4 sheets (`Users`, `UserApiKeys`, `SavedApis`, `CallLogs`) and add column headers matching Requirements §5
-- [ ] **MANUAL:** In Apps Script editor: set Script Properties `SPREADSHEET_ID` and `SHEETS_SECRET`; deploy as Web App (Execute as Me / Anyone); copy URL to `.env.local` as `SHEETS_WEBHOOK_URL`
-- [ ] **MANUAL:** Smoke-test every action via `curl` or the integration tests in Phase 12
+- [x] **MANUAL:** Create Google Sheets workbook with 4 sheets (`Users`, `UserApiKeys`, `SavedApis`, `CallLogs`) and add column headers matching Requirements §5
+- [x] **MANUAL:** In Apps Script editor: set Script Properties `SPREADSHEET_ID` and `SHEETS_SECRET`; deploy as Web App (Execute as Me / Anyone); copy URL to `.env.local` as `SHEETS_WEBHOOK_URL`
+- [x] **MANUAL:** Smoke-test every action via Postman
 
 > **Note:** Apps Script Web Apps cannot read HTTP request headers. The `SHEETS_SECRET` is passed as `body.secret` in the POST body (handled transparently by `lib/sheets.ts`). The `X-Sheets-Secret` header mentioned in the requirements is effectively replaced by this body field.
 
