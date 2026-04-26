@@ -4,7 +4,7 @@ import { useState, useEffect, type FormEvent } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAuthStore } from '@/store/authStore'
-import type { SavedApi, SafetySetting } from '@/lib/types'
+import type { SavedApi } from '@/lib/types'
 import type { GemmaModel } from '@/lib/googleAI'
 
 type FormData = Omit<SavedApi, 'id' | 'userId' | 'callCount' | 'createdAt' | 'updatedAt'>

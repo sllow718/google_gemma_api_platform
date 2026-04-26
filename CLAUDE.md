@@ -20,12 +20,13 @@ This is a **Gemma API Management Platform** — a full-stack Next.js 16 / TypeSc
 | 10 | Frontend: dashboard + API management UI | done |
 | 11 | Frontend: history, settings, global components | done |
 | — | Public API endpoint + Quickstart UI (post-Phase-11 feature) | done |
+| 12 | Sheets integration tests (10 cases §14.8) | done |
 
 `npm test` → 91 passing, 0 failures.
 
 ### Next phase
 
-**Phase 12** — Sheets integration tests + full QA (`tests/sheets.integration.test.ts`, 10 cases §14.8); requires live staging sheet.
+**Phase 13** — Vercel deployment + README documentation.
 
 ### Key architectural decisions
 
@@ -49,7 +50,9 @@ This is a **Gemma API Management Platform** — a full-stack Next.js 16 / TypeSc
 - **Platform API Key**: format `gmp_` + 32 hex chars (UUID without dashes); stored in Users sheet (`platformApiKey` column); auth via `X-API-Key` header on `POST /api/v1/:id/call`
 - **Public endpoint**: `POST /api/v1/:id/call` — same quota/call logic as JWT route but authenticated with platform key; no session cookie needed
 - **Quickstart component**: collapsible section on API call page; shows endpoint URL + copy-able Node.js snippet; prompts to generate key in Settings if none exists
-- **New sheets actions needed in Code.gs**: `setPlatformApiKey`, `clearPlatformApiKey`, `getUserByPlatformApiKey`, `updateUserName`, `updatePassword`
+- **New sheets actions needed in Code.gs**: `setPlatformApiKey`, `clearPlatformApiKey`, `getUserByPlatformApiKey`, `updateUserName`, `updatePassword` — all implemented in apps-script/Code.gs, need redeploy
+- **tsconfig setup**: `tsconfig.json` includes all files (tests included); `tsconfig.test.json` used by Jest (overrides moduleResolution to node, adds jest types); `tests/tsconfig.json` extends tsconfig.test.json so IDE picks up jest globals in test files
+- **User.platformApiKey**: added to both `User` and `UserProfile` types; all mock user objects in tests must include `platformApiKey: null`
 
 ### Manual setup (Phase 2) — COMPLETE
 

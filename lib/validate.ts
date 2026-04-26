@@ -50,8 +50,8 @@ export const EnvSchema = z.object({
   GOOGLE_API_KEY: z.string().min(1),
   JWT_SECRET: z.string().min(32),
   ENCRYPTION_SECRET: z.string().min(1),
-  SHEETS_WEBHOOK_URL: z.string().url(),
-  SHEETS_SECRET: z.string().min(1),
+  SUPABASE_URL: z.string().url(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   SHARED_TIER_DAILY_LIMIT: z.coerce.number().int().positive().default(50),
   NEXT_PUBLIC_APP_URL: z.string().url(),
 })

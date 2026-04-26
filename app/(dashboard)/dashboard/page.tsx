@@ -36,7 +36,7 @@ export default function DashboardPage() {
           </Link>
           {atLimit && (
             <p className="absolute right-0 top-full mt-1 w-48 rounded-lg bg-gray-900 px-3 py-2 text-xs text-white shadow-lg">
-              You've reached the 20-configuration limit.
+              You&apos;ve reached the 20-configuration limit.
             </p>
           )}
         </div>

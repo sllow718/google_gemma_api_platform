@@ -48,6 +48,7 @@ const sharedUser: User = {
   dailyCallResetAt: today,
   refreshToken: null,
   refreshTokenExpiresAt: null,
+  platformApiKey: null,
 }
 
 const sharedUserAtLimit: User = {

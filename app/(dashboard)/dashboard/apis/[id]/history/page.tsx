@@ -29,17 +29,33 @@ export default function CallHistoryPage() {
 
   useEffect(() => {
     if (!accessToken) return
-    setLoading(true)
-    fetch(`/api/apis/${id}/calls?page=${page}&limit=${LIMIT}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then((r) => r.json())
-      .then((d: { calls: CallLog[]; total: number }) => {
+    let cancelled = false
+
+    async function loadCalls() {
+      setLoading(true)
+
+      try {
+        const response = await fetch(`/api/apis/${id}/calls?page=${page}&limit=${LIMIT}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        const d = (await response.json()) as { calls: CallLog[]; total: number }
+
+        if (cancelled) return
+
         setCalls(d.calls ?? [])
         setTotal(d.total ?? 0)
-      })
-      .catch(() => {/* ignore */})
-      .finally(() => setLoading(false))
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void loadCalls()
+
+    return () => {
+      cancelled = true
+    }
   }, [id, accessToken, page])
 
   return (

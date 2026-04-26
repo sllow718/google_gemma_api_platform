@@ -15,6 +15,7 @@ const mockUser: UserProfile = {
   dailyRemaining: 48,
   hasApiKey: false,
   keyHint: null,
+  platformApiKey: null,
 }
 
 // A minimal JWT with exp 15 minutes from now

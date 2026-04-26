@@ -32,7 +32,7 @@ describe('POST /api/user/platformkey', () => {
   })
 
   it('overwrites existing key and returns new key', async () => {
-    const res1 = await POST(authRequest('POST'))
+    await POST(authRequest('POST'))
     const res2 = await POST(authRequest('POST'))
     const body2 = await res2.json()
 

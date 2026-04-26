@@ -168,7 +168,7 @@ export async function POST(request: Request, { params }: Ctx): Promise<Response>
     }
 
     if ((error as { code?: string } | null)?.code === 'SHEETS_UNAVAILABLE') {
-      return jsonError(503, 'SHEETS_UNAVAILABLE', error instanceof Error ? error.message : 'Sheets unavailable')
+      return jsonError(503, 'SHEETS_UNAVAILABLE', error instanceof Error ? error.message : 'Supabase unavailable')
     }
 
     return jsonError(500, 'INTERNAL_ERROR', error instanceof Error ? error.message : 'Unexpected error')

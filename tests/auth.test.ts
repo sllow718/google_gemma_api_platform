@@ -34,6 +34,7 @@ const mockUser: User = {
   dailyCallResetAt: '2026-01-01T00:00:00.000Z',
   refreshToken: 'stored-refresh-token',
   refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  platformApiKey: null,
 }
 
 function makeRequest(method: string, body?: unknown, headers?: Record<string, string>): Request {

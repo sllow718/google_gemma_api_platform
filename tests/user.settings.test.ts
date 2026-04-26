@@ -26,6 +26,7 @@ const mockUser: User = {
   dailyCallResetAt: null,
   refreshToken: null,
   refreshTokenExpiresAt: null,
+  platformApiKey: null,
 }
 
 function makeRequest(method: string, body?: unknown): Request {
