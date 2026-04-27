@@ -21,12 +21,13 @@ This is a **Gemma API Management Platform** — a full-stack Next.js 16 / TypeSc
 | 11 | Frontend: history, settings, global components | done |
 | — | Public API endpoint + Quickstart UI (post-Phase-11 feature) | done |
 | 12 | Sheets integration tests (10 cases §14.8) | done |
+| 13 | Vercel deployment + README documentation | done |
 
 `npm test` → 91 passing, 0 failures.
 
 ### Next phase
 
-**Phase 13** — Vercel deployment + README documentation.
+All 13 phases complete. Project shipped.
 
 ### Key architectural decisions
 
