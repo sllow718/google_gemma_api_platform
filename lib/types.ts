@@ -6,7 +6,8 @@ export interface User {
   id: string
   email: string
   name: string
-  passwordHash: string
+  passwordHash: string | null
+  googleId: string | null
   createdAt: string
   lastLoginAt: string | null
   isActive: boolean

@@ -55,7 +55,9 @@ cp .env.local.example .env.local
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key from Supabase dashboard → Settings → API |
 | `JWT_SECRET` | Random string ≥32 characters — used to sign access tokens |
 | `ENCRYPTION_SECRET` | 32-byte cryptographically random value, base64-encoded — used to encrypt stored API keys |
-| `GOOGLE_API_KEY` | Google Cloud API key with Generative Language API enabled |
+| `GOOGLE_CLIENT_ID` | OAuth 2.0 client ID from Google Cloud Console (for user sign-in) |
+| `GOOGLE_CLIENT_SECRET` | OAuth 2.0 client secret from Google Cloud Console |
+| `GOOGLE_API_KEY` | Google Cloud API key with Generative Language API enabled (for Gemma calls) |
 | `NEXT_PUBLIC_APP_URL` | Base URL of the app (e.g. `http://localhost:3000` locally) |
 | `SHARED_TIER_DAILY_LIMIT` | (optional) Daily call limit for shared-tier users; defaults to `50` |
 | `API_TIMING_LOGS` | (optional) Set to `1` to log per-request AI latency to stdout |
@@ -359,6 +361,8 @@ The test suite uses Jest with `ts-jest`. All external dependencies (Supabase, Go
    | `SUPABASE_SERVICE_ROLE_KEY` | Service role key (keep secret) |
    | `JWT_SECRET` | ≥32 random characters |
    | `ENCRYPTION_SECRET` | 32-byte base64 string (see above) |
+   | `GOOGLE_CLIENT_ID` | OAuth 2.0 client ID (redirect URI: `https://your-app.vercel.app/api/auth/google/callback`) |
+   | `GOOGLE_CLIENT_SECRET` | OAuth 2.0 client secret |
    | `GOOGLE_API_KEY` | Google Cloud key with Generative Language API |
    | `NEXT_PUBLIC_APP_URL` | Your production Vercel domain (e.g. `https://your-app.vercel.app`) |
    | `SHARED_TIER_DAILY_LIMIT` | (optional) default `50` |

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type FormEvent } from 'react'
 import { Button } from '@/components/ui/Button'
+import { FieldTooltip } from '@/components/ui/FieldTooltip'
 import { Input } from '@/components/ui/Input'
 import { useAuthStore } from '@/store/authStore'
 import type { SavedApi } from '@/lib/types'
@@ -115,7 +116,10 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
 
       {/* Model */}
       <div className="flex flex-col gap-1">
-        <label htmlFor="model" className="text-sm font-medium text-gray-700">Model *</label>
+        <label htmlFor="model" className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+          Model *
+          <FieldTooltip content="The Gemma model variant to use. Larger models (e.g. 27B) produce higher-quality output but have higher latency; smaller models (e.g. 2B) are faster. Default: first available model" />
+        </label>
         <select
           id="model"
           value={form.model}
@@ -129,9 +133,9 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
 
       {/* System Prompt */}
       <div className="flex flex-col gap-1">
-        <label htmlFor="system-prompt" className="flex items-center gap-1 text-sm font-medium text-gray-700">
+        <label htmlFor="system-prompt" className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
           System Prompt
-          <span title="Instructs the model how to behave before the user's prompt." className="cursor-help text-gray-400">ⓘ</span>
+          <FieldTooltip content="Instructions prepended to every request to set the model's persona, tone, or constraints (e.g. 'You are a concise assistant that only answers in bullet points'). Applied before the user's prompt. Default: none" />
         </label>
         <textarea
           id="system-prompt"
@@ -144,7 +148,10 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
 
       {/* Temperature */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Temperature</label>
+        <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+          Temperature
+          <FieldTooltip content="Controls output randomness. Higher values (up to 2.0) produce more creative and varied responses; lower values (toward 0) produce more focused, deterministic output. Default: 1.0" />
+        </label>
         <div className="flex items-center gap-3">
           <input
             type="range" min={0} max={2} step={0.05}
@@ -164,7 +171,10 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
 
       {/* Top P */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Top P</label>
+        <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+          Top P
+          <FieldTooltip content="Nucleus sampling threshold. The model considers only the smallest set of tokens whose cumulative probability reaches this value. Lower values (e.g. 0.5) make output more focused; higher values allow more diversity. Default: 0.95" />
+        </label>
         <div className="flex items-center gap-3">
           <input
             type="range" min={0} max={1} step={0.01}
@@ -184,7 +194,10 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
 
       {/* Top K */}
       <Input
-        id="top-k" label="Top K" type="number" min={1}
+        id="top-k"
+        label="Top K"
+        labelSuffix={<FieldTooltip content="Limits sampling to the top K most probable next tokens at each step. Lower values (e.g. 10) produce more predictable output; higher values allow more varied word choices. Default: model-dependent (typically 40)" />}
+        type="number" min={1}
         value={form.topK ?? ''}
         onChange={(e) => set('topK', e.target.value ? parseInt(e.target.value) : null)}
         placeholder="default"
@@ -194,6 +207,7 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
       <Input
         id="max-tokens"
         label={`Max Output Tokens${tier === 'shared' ? ` (max ${maxTokensCap})` : ''}`}
+        labelSuffix={<FieldTooltip content={`Maximum number of tokens the model will generate in a single response. Roughly 1 token ≈ 4 characters or ¾ of a word. Default: model-dependent.${tier === 'shared' ? ` Shared tier is capped at ${maxTokensCap}.` : ''}`} />}
         type="number" min={1} max={maxTokensCap}
         value={form.maxOutputTokens ?? ''}
         onChange={(e) => set('maxOutputTokens', e.target.value ? Math.min(parseInt(e.target.value), maxTokensCap) : null)}
@@ -202,7 +216,10 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
 
       {/* Stop Sequences */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">Stop Sequences</label>
+        <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+          Stop Sequences
+          <FieldTooltip content="Strings that cause the model to stop generating as soon as any of them appears in the output. Useful when you need the response to end at a predictable boundary (e.g. a closing tag or delimiter). Default: none" />
+        </label>
         <div className="flex gap-2">
           <input
             type="text"
@@ -228,7 +245,10 @@ export function ApiConfigForm({ initial, onSubmit, loading = false, submitLabel 
 
       {/* Safety Settings */}
       <div className="flex flex-col gap-3">
-        <label className="text-sm font-medium text-gray-700">Safety Settings</label>
+        <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+          Safety Settings
+          <FieldTooltip content="Controls the threshold at which potentially harmful content is blocked. 'Model default' applies the model's built-in policy. More restrictive settings block more content; 'Block none' disables filtering for that category. Default: model default for all categories" />
+        </label>
         {HARM_CATEGORIES.map((cat) => (
           <div key={cat} className="flex items-center justify-between gap-4">
             <span className="text-xs text-gray-600">{cat.replace('HARM_CATEGORY_', '').replace(/_/g, ' ')}</span>

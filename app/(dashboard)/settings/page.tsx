@@ -6,10 +6,6 @@ import { ApiKeyManager } from '@/components/ApiKeyManager'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
-import { passwordStrength } from '@/lib/passwordStrength'
-
-const strengthColor = { weak: 'bg-red-400', medium: 'bg-yellow-400', strong: 'bg-green-500' }
-const strengthWidth = { weak: 'w-1/3', medium: 'w-2/3', strong: 'w-full' }
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user)
@@ -17,18 +13,8 @@ export default function SettingsPage() {
   const initialize = useAuthStore((s) => s.initialize)
   const { toast } = useToast()
 
-  // Display name
   const [name, setName] = useState(user?.name ?? '')
   const [savingName, setSavingName] = useState(false)
-
-  // Password
-  const [currentPw, setCurrentPw] = useState('')
-  const [newPw, setNewPw] = useState('')
-  const [confirmPw, setConfirmPw] = useState('')
-  const [pwError, setPwError] = useState<string | null>(null)
-  const [savingPw, setSavingPw] = useState(false)
-
-  const strength = newPw ? passwordStrength(newPw) : null
 
   async function handleSaveName(e: FormEvent) {
     e.preventDefault()
@@ -47,34 +33,6 @@ export default function SettingsPage() {
       toast('Network error.', 'error')
     } finally {
       setSavingName(false)
-    }
-  }
-
-  async function handleChangePassword(e: FormEvent) {
-    e.preventDefault()
-    setPwError(null)
-    if (newPw !== confirmPw) { setPwError('Passwords do not match.'); return }
-    if (!strength || strength === 'weak') { setPwError('New password is too weak.'); return }
-    setSavingPw(true)
-    try {
-      const res = await fetch('/api/user/password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
-      })
-      const data = await res.json() as { error?: { code: string; message?: string } }
-      if (!res.ok) {
-        setPwError(data.error?.code === 'WRONG_PASSWORD'
-          ? 'Current password is incorrect.'
-          : (data.error?.message ?? 'Failed to change password.'))
-        return
-      }
-      toast('Password changed.', 'success')
-      setCurrentPw(''); setNewPw(''); setConfirmPw('')
-    } catch {
-      toast('Network error.', 'error')
-    } finally {
-      setSavingPw(false)
     }
   }
 
@@ -103,53 +61,6 @@ export default function SettingsPage() {
 
         {/* Email (read-only) */}
         <Input id="email" label="Email" value={user?.email ?? ''} readOnly disabled />
-
-        {/* Change password */}
-        <div className="border-t border-gray-100 pt-4">
-          <h3 className="mb-4 text-sm font-semibold text-gray-700">Change password</h3>
-          <form onSubmit={handleChangePassword} className="flex flex-col gap-4">
-            <Input
-              id="current-password"
-              type="password"
-              label="Current password"
-              value={currentPw}
-              onChange={(e) => setCurrentPw(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
-            <div className="flex flex-col gap-1">
-              <Input
-                id="new-password"
-                type="password"
-                label="New password"
-                value={newPw}
-                onChange={(e) => setNewPw(e.target.value)}
-                autoComplete="new-password"
-                required
-              />
-              {strength && (
-                <div className="mt-1">
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
-                    <div className={`h-full rounded-full transition-all ${strengthColor[strength]} ${strengthWidth[strength]}`} />
-                  </div>
-                </div>
-              )}
-            </div>
-            <Input
-              id="confirm-password"
-              type="password"
-              label="Confirm new password"
-              value={confirmPw}
-              onChange={(e) => setConfirmPw(e.target.value)}
-              autoComplete="new-password"
-              required
-            />
-            {pwError && <p role="alert" className="text-sm text-red-600">{pwError}</p>}
-            <Button type="submit" variant="secondary" loading={savingPw} className="self-start">
-              Change password
-            </Button>
-          </form>
-        </div>
       </section>
 
       {/* Google API Key section */}

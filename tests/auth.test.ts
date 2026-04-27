@@ -1,16 +1,12 @@
-import { POST as signupPOST } from '@/app/api/auth/signup/route'
-import { POST as loginPOST } from '@/app/api/auth/login/route'
 import { POST as refreshPOST } from '@/app/api/auth/refresh/route'
 import { POST as logoutPOST } from '@/app/api/auth/logout/route'
 import { GET as meGET } from '@/app/api/auth/me/route'
 import { signAccessToken } from '@/lib/auth'
 import type { User } from '@/lib/types'
 import * as sheets from '@/lib/sheets'
-import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 jest.mock('@/lib/sheets')
-jest.mock('bcryptjs')
 jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue('mock-uuid-1234') }))
 
 const mockGet = jest.fn()
@@ -24,7 +20,8 @@ const mockUser: User = {
   id: 'user-id-1',
   email: 'test@example.com',
   name: 'Test User',
-  passwordHash: '$2b$12$hashedpassword',
+  passwordHash: null,
+  googleId: 'google-sub-123',
   createdAt: '2026-01-01T00:00:00.000Z',
   lastLoginAt: '2026-01-01T00:00:00.000Z',
   isActive: true,
@@ -51,92 +48,14 @@ describe('auth routes', () => {
     const { cookies } = jest.requireMock('next/headers')
     cookies.mockResolvedValue({ get: mockGet, set: mockSet })
     mockGet.mockReturnValue(undefined)
-    jest.mocked(sheets.getUserByEmail).mockResolvedValue(null)
-    jest.mocked(sheets.createUser).mockResolvedValue({ id: 'mock-uuid-1234' })
-    jest.mocked(sheets.setRefreshToken).mockResolvedValue(undefined)
-    jest.mocked(sheets.updateLastLogin).mockResolvedValue(undefined)
     jest.mocked(sheets.getRefreshToken).mockResolvedValue({
       refreshToken: null,
       refreshTokenExpiresAt: null,
     })
     jest.mocked(sheets.getUserById).mockResolvedValue(null)
     jest.mocked(sheets.getApiKey).mockResolvedValue(null)
+    jest.mocked(sheets.setRefreshToken).mockResolvedValue(undefined)
     jest.mocked(sheets.clearRefreshToken).mockResolvedValue(undefined)
-    jest.mocked(bcrypt.hash).mockResolvedValue('$2b$12$hashedpassword' as never)
-    jest.mocked(bcrypt.compare).mockResolvedValue(true as never)
-  })
-
-  // ===== SIGNUP =====
-
-  it('signup with valid data returns 201 with accessToken and sets cookie', async () => {
-    const res = await signupPOST(
-      makeRequest('POST', { email: 'new@example.com', password: 'StrongPass1!', name: 'New User' })
-    )
-    const body = await res.json()
-
-    expect(res.status).toBe(201)
-    expect(typeof body.accessToken).toBe('string')
-    expect(body.user).toMatchObject({ email: 'new@example.com', name: 'New User', tier: 'shared' })
-    expect(mockSet).toHaveBeenCalledWith(
-      'refreshToken',
-      expect.stringContaining(':'),
-      expect.objectContaining({ httpOnly: true })
-    )
-  })
-
-  it('signup with duplicate email returns 409 CONFLICT', async () => {
-    jest.mocked(sheets.getUserByEmail).mockResolvedValue(mockUser)
-
-    const res = await signupPOST(
-      makeRequest('POST', { email: 'test@example.com', password: 'StrongPass1!', name: 'Test' })
-    )
-    const body = await res.json()
-
-    expect(res.status).toBe(409)
-    expect(body.error.code).toBe('CONFLICT')
-  })
-
-  it('signup with weak password returns 400 VALIDATION_ERROR', async () => {
-    const res = await signupPOST(
-      makeRequest('POST', { email: 'new@example.com', password: 'weak', name: 'Test' })
-    )
-    const body = await res.json()
-
-    expect(res.status).toBe(400)
-    expect(body.error.code).toBe('VALIDATION_ERROR')
-  })
-
-  // ===== LOGIN =====
-
-  it('login with correct credentials returns 200 with accessToken and sets cookie', async () => {
-    jest.mocked(sheets.getUserByEmail).mockResolvedValue(mockUser)
-
-    const res = await loginPOST(
-      makeRequest('POST', { email: 'test@example.com', password: 'CorrectPass1!' })
-    )
-    const body = await res.json()
-
-    expect(res.status).toBe(200)
-    expect(typeof body.accessToken).toBe('string')
-    expect(body.user).toMatchObject({ email: 'test@example.com', tier: 'shared' })
-    expect(mockSet).toHaveBeenCalledWith(
-      'refreshToken',
-      expect.stringContaining(':'),
-      expect.objectContaining({ httpOnly: true })
-    )
-  })
-
-  it('login with wrong password returns 401 UNAUTHORIZED', async () => {
-    jest.mocked(sheets.getUserByEmail).mockResolvedValue(mockUser)
-    jest.mocked(bcrypt.compare).mockResolvedValue(false as never)
-
-    const res = await loginPOST(
-      makeRequest('POST', { email: 'test@example.com', password: 'WrongPass1!' })
-    )
-    const body = await res.json()
-
-    expect(res.status).toBe(401)
-    expect(body.error.code).toBe('UNAUTHORIZED')
   })
 
   // ===== ME =====

@@ -23,7 +23,8 @@ type UserRow = {
   id: string
   email: string
   name: string
-  password_hash: string
+  password_hash: string | null
+  google_id: string | null
   created_at: string
   last_login_at: string | null
   is_active: boolean
@@ -248,6 +249,7 @@ function toUser(row: UserRow): User {
     email: row.email,
     name: row.name,
     passwordHash: row.password_hash,
+    googleId: row.google_id,
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
     isActive: row.is_active,
@@ -309,12 +311,15 @@ function toCallLog(row: CallLogRow): CallLog {
   }
 }
 
-function toUserRow(payload: Pick<User, 'id' | 'email' | 'name' | 'passwordHash' | 'createdAt'>): Record<string, unknown> {
+function toUserRow(
+  payload: Pick<User, 'id' | 'email' | 'name' | 'createdAt'> & { passwordHash?: string | null; googleId?: string | null }
+): Record<string, unknown> {
   return {
     id: payload.id,
     email: payload.email,
     name: payload.name,
-    password_hash: payload.passwordHash,
+    password_hash: payload.passwordHash ?? null,
+    google_id: payload.googleId ?? null,
     created_at: payload.createdAt,
     is_active: true,
     tier: 'shared',
@@ -387,7 +392,7 @@ function parseContentRange(value: string | null): number | null {
 // ===== USERS =====
 
 export async function createUser(
-  payload: Pick<User, 'id' | 'email' | 'name' | 'passwordHash' | 'createdAt'>
+  payload: Pick<User, 'id' | 'email' | 'name' | 'createdAt'> & { passwordHash?: string | null; googleId?: string | null }
 ): Promise<{ id: string }> {
   const row = await insertRow<UserRow>('users', toUserRow(payload), 'id')
   return { id: row.id }
@@ -396,6 +401,15 @@ export async function createUser(
 export async function getUserByEmail(email: string): Promise<User | null> {
   const row = await selectSingleRow<UserRow>('users', buildFilter('email', email))
   return row ? toUser(row) : null
+}
+
+export async function getUserByGoogleId(googleId: string): Promise<User | null> {
+  const row = await selectSingleRow<UserRow>('users', buildFilter('google_id', googleId))
+  return row ? toUser(row) : null
+}
+
+export async function updateGoogleId(id: string, googleId: string): Promise<void> {
+  await updateRows<UserRow>('users', buildFilter('id', id), { google_id: googleId }, 'id')
 }
 
 export async function getUserById(id: string): Promise<User | null> {

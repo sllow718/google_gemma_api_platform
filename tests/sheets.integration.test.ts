@@ -28,7 +28,8 @@ const baseUser = (id: string, userEmail: string, createdAt = new Date().toISOStr
   id,
   email: userEmail,
   name: 'Integration Test User',
-  passwordHash: '$2b$12$integrationtesthashvalue',
+  passwordHash: null,
+  googleId: 'google-sub-integration',
   createdAt,
 })
 

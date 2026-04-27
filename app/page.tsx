@@ -17,16 +17,10 @@ export default async function LandingPage() {
         </p>
         <div className="flex gap-4">
           <Link
-            href="/signup"
+            href="/login"
             className="rounded-lg bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
           >
-            Sign Up Free
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50"
-          >
-            Log In
+            Get Started
           </Link>
         </div>
       </section>
@@ -96,10 +90,10 @@ export default async function LandingPage() {
       <section className="border-t border-gray-200 bg-white px-6 py-12 text-center">
         <p className="mb-6 text-gray-600">Ready to get started?</p>
         <Link
-          href="/signup"
+          href="/login"
           className="rounded-lg bg-blue-600 px-8 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
         >
-          Create a free account
+          Get started for free
         </Link>
       </section>
     </main>
