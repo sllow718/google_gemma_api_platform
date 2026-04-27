@@ -1,6 +1,10 @@
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const cookieStore = await cookies()
+  if (cookieStore.get('refreshToken')?.value) redirect('/dashboard')
   return (
     <main className="flex min-h-full flex-col">
       {/* Hero */}
